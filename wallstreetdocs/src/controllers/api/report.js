@@ -21,7 +21,7 @@ router.get('/get/:id', async (req, res) => {
         var result = await apiClient.downloadReport(id);
         res.send(result);
     }
-    catch {
+    catch (err){
         res.send({ isSuccessful: false });
     }
 });

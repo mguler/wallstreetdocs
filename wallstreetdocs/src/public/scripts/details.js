@@ -18,7 +18,15 @@ $(async () => {
 handleEvents = async () => {
     //reload button click event handler
     $("#reloadData").on("click", e => loadReport());
+    //search button click event handler
     $("#search").on("click", e => showData(currentData));
+    //filter keypress event handler
+    $("#filter").on("keypress", e => {
+        //Enter key
+        if (e.keyCode == 13) {
+            showData(currentData);
+        }
+    });
 }
 
 //this method loads reports from the server and updates the currentData 
