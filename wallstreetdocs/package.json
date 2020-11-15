@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "grunt && node src/app.js",
-    "default": "grunt && node src/app.js"
+    "start": "grunt && node src/app.js"
   },
   "dependencies": {
     "@siderite/linqer": "^1.2.3",
