@@ -1,4 +1,8 @@
 module.exports = {
+    app: {
+        port: 9999,
+        startupMessage:"Application is listening on the port 9999"
+    },
     remoteApi: {
         reporting: {
             endpoints: {
