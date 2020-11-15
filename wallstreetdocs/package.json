@@ -3,8 +3,13 @@
   "version": "0.0.1",
   "description": "Wallstreet Docs Assesment",
   "main": "src/app.js",
+  "license": "GNU General Public License (GPL)",
   "author": {
     "name": "Murat Guler"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mguler/wallstreetdocs.git"
   },
   "scripts": {
     "dev": "grunt && node src/app.js",
