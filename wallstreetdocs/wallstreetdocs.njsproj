@@ -29,6 +29,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Content Include="notes.txt" />
     <Content Include="public\details.html" />
     <Content Include="public\index.html" />
     <Content Include="public\styles\details.css" />

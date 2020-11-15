@@ -1,0 +1,136 @@
+Here's some information about source code and files
+
+Application has two pages, index page shows data in three pie charts and can be filtered by dropdowns on the screen , 
+the details page shows the data in table with expandible rows, if data has nodes "+" showns on the row and the row 
+can be expand/collapse by clicking on the "+" icon ,expanded row can be expand again if inside data has chekcs
+
+* SERVER SIDE
+app.js 
+this is the main entry point for the application , web server starts here
+
+config.js
+main configuration file of the application, some configurable values stored in this file
+
+routes.js
+routing configuration , application routes storing here
+
+/controllers/api/report.js
+reporting controller, this file configures action routes , handles and process requests , this class handles the requests with two methods
+
+'/request'
+this action handles report request supplies a bridge from client to 3rd party api's
+
+'/get/:id'
+this action handles report download request, suplies a bridge from client to 3rd party api's it takes job id parameter
+
+/controllers/tools/apiClient.js
+business layer for api , management, there are 3 methods here  
+
+1) login 
+	gets a token for accesing report api's by using credentials
+2) requestReport 
+	this method sends a request for preparing a report, and returns a job id
+3) downloadReport
+	download the pre-requested report by job id
+	
+/controllers/tools/httpClient.js
+this class manages http operations  , contains 2 methods
+   
+1) postJson
+	this method makes http post requests and sends payloads in json format, returns deserialized json data from response
+2) getJson
+	this method makes http get requests , returns deserialized json data from response  
+
+/controllers/tools/wait.js
+this file contains wait method it supplies wait functionality for the miliseconds in given parameter
+
+* CLIENT SIDE
+
+/src/public/scripts/index.js
+application code for index page. this file contains following methods 
+
+//Main entry point of Jquery , this method guarantees dom is created and ready
+$(async () => {
+    //handle event handlers
+    await handleEvents();
+    //load report
+    await loadReport();
+});
+
+handleEvents
+this method set event handlers to elements
+
+hostsFilterChangedEventHandler
+handles change event of hostsFilter 
+
+loadReport
+this method loads reports from the server and updates the currentData 
+ 
+prepareFilters
+this method fills dropdown filters
+
+filterData
+this function filters the data by selected filter options 
+
+showData 
+this method generates the filtered data and shows it by using charts
+
+createChart 
+this is chart generatr method , it created charts with given arguments
+
+
+/src/public/scripts/details.js
+application code for details page. this file contains following methods 
+
+$(async () => {
+    //handle event handlers
+    await handleEvents();
+    //load report
+    await loadReport();
+});
+Main entry point of Jquery , this method guarantees dom is created and ready
+
+handleEvents 
+this method set event handlers to elements
+
+loadReport
+this method loads reports from the server and updates the currentData 
+
+showData 
+this method generates the filtered data and table with expandable rows
+
+rowClickedEventHandler
+this method handles click event for expandible row and supplies expand & collapse functionality
+
+/src/public/scripts/common.js
+this file contains some common functions of client side both index.js and details.js uses functions in this file
+
+requestReport
+this method makes a call to server for request a report
+
+downloadReport
+this metod makes a call to server for download the report by given job id
+
+showLoading
+this methods shows a loading popup and blocks the screen by using given arguments
+
+showError
+this methods shows a error popup and blocks the screen by using given arguments
+
+/public/index.html
+template file for main page
+
+/public/details.html
+template file for details page
+
+/public/styles/index.css
+css styles for index page
+
+/public/styles/details.css
+css styles for details page 
+
+/public/scripts 
+folder for grunt generated clientside script files. grunt merges the script files from the folder "/src/public/scripts" then writes them in this folder 
+
+
+

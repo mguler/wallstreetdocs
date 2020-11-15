@@ -22,8 +22,9 @@ handleEvents = async () => {
     $("#search").on("click", e => showData(currentData));
     //filter keypress event handler
     $("#filter").on("keypress", e => {
-        //Enter key
+        //if enter key pressed 
         if (e.keyCode == 13) {
+            //make a search on data
             showData(currentData);
         }
     });
@@ -33,6 +34,7 @@ handleEvents = async () => {
 loadReport = async () => {
     try {
 
+        //set the current data null
         currentData = null;
 
         //show loading popup and block the screen
@@ -62,6 +64,7 @@ loadReport = async () => {
                 alertMessage: ""
             }, item);
 
+            //prepare the nodes of item
             var nodes = linqer.Enumerable.from(item.nodes).select(node => {
                 var newNode = Object.assign({}, node);
                 newNode.alertMessage = newNode.status_code == 501 ? "Not Implemented"
@@ -70,6 +73,7 @@ loadReport = async () => {
                 return newNode;
             });
 
+            //set the alert message of the item
             newItem.alertMessage = item.nodes.length == 0 ? "No Hosts Registered" : nodes.aggregate("", (current, next) => `${current}<br>${next.alertMessage}`);
             newItem.nodes = nodes.toArray();
 
@@ -86,7 +90,7 @@ loadReport = async () => {
     }
 }
 
-//this method generates the filtered data and shows it by using charts
+//this method generates the filtered data and table with expandable rows
 showData = async (data) => {
 
     //keyword
@@ -100,30 +104,40 @@ showData = async (data) => {
     //generate table code
     table = linqer.Enumerable.from(data).aggregate("", (current, next) => {
         try {
+            //if host has nodes this is a expandable row
             var expandable = next.nodes.length > 0;
+            //generate the table row
             var row = `${current}<tr class="test">${expandable ? "<td class='expandable-row'>+</td>" : "<td></td>"}<td>${next.host.name}</td><td>${next.alertMessage}</td></tr>`;
 
+            //if host has nodes generate a sub table for nodes
             if (expandable) {
-
+                //generate the rows of sub table (for nodes)
                 var nodeRows = linqer.Enumerable.from(next.nodes).aggregate("", (currentNodes, nextNode) => {
+                    //if node has checks this is a expandable row
                     var expandableNode = nextNode.checks && nextNode.checks.length > 0;
+                    //generate the sub table row (node row)
                     var nodeRow = `${currentNodes}<tr>${expandableNode ? "<td class='expandable-row'>+</td>" : "<td></td>"}<td>${nextNode.web_node}</td><td>${nextNode.alertMessage}</td></tr>`;
 
+                    //if node has checks generate a sub table for checks
                     if (expandableNode) {
+                        //generate the rows of subtable (checks)
                         var checkRows = linqer.Enumerable.from(nextNode.checks).aggregate("", (currentChecks, nextCheck) =>
                             `${currentChecks}<tr><td>${nextCheck.name}</td><td>${nextCheck.state == "green" ? "OK":"Error"}</td><td>${nextCheck.message}</td></tr>`);
-
+                        //create the checks table and add rows
                         var checksTable = `<table><thead><th>Name</th><th>State</th><th>Message</th></thead><tbody>${checkRows}</tbody></table>`;
-                        nodeRow  = `${nodeRow}<tr class="collapsed"><td colspan="3">${checksTable}</td></tr>`;;
+                        //merge the checks table with parent table
+                        nodeRow = `${nodeRow}<tr class="collapsed"><td colspan="3">${checksTable}</td></tr>`;;
                     }
-
+                    //return the generated node row
                     return nodeRow;
                 });
 
+                //create the checks table and add rows
                 var nodesTable = `<table><thead><th></th><th>Node</th><th>Message</th></thead><tbody>${nodeRows}</tbody></table>`;
+                //merge the checks table with parent table
                 row = `${row}<tr class="collapsed"><td colspan="3">${nodesTable}</td></tr>`;
             }
-
+            //return the generated table row
             return row;
         } catch (err) {
 
@@ -138,13 +152,22 @@ showData = async (data) => {
     $("tbody").empty().append($table);
 }
 
+//this method handles click event for expandible row and supplies expand & collapse functionality
 rowClickedEventHandler = async (e) => {
-    var v = $(e.target).closest("tr").next();
-    if (v.hasClass("collapsed")) {
-        v.removeClass("collapsed");
+    //get the expansion of expandible row
+    var collapsedRow = $(e.target).closest("tr").next();
+    //if is it collapsed expand it
+    if (collapsedRow.hasClass("collapsed")) {
+        //remove the collapsed class for expand the row
+        collapsedRow.removeClass("collapsed");
+        //change the icon 
         $(e.target).text("-");
-    } else {
-        v.addClass("collapsed");
+    }
+    //collapse the row
+    else {
+        //add the collapsed class for collapse row
+        collapsedRow.addClass("collapsed");
+        //change the icon
         $(e.target).text("+");
     }
 

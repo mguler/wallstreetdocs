@@ -21,7 +21,7 @@ $(async () => {
 //this method set event handlers to elements
 handleEvents = async () => {
 
-    //reload buttn click event handler
+    //reload button click event handler
     $("#reloadData").on("click", e => loadReport());
     //hosts dropdown change event handler
     $("#hostsFilter").on("change", hostsFilterChangedEventHandler);
@@ -30,27 +30,32 @@ handleEvents = async () => {
 
 }
 
-//handles
+//handles change event of hostsFilter 
 hostsFilterChangedEventHandler = (e) => {
+    //get selected hostId from filter
     var hostId = parseInt($("#hostsFilter option:selected").val());
+    //turn the data into enumrable collection
     var enumerable = linqer.Enumerable.from(currentData);
-
+    //get the host from the report data 
     var host = enumerable.where(item => item.host.id == hostId).singleOrDefault();
+    //if could not find the host return 
     if (!host) {
+        //just return
         return;
     }
 
+    //get nodes from selected host object and crete a option list  
     var nodes = linqer.Enumerable.from(host.nodes).aggregate("<option value=0>Select Node</option>", (current, next) => `${current}<option value="${next.web_node}">${next.web_node}</option>`);
-
+    //append generated option list into nodesFilter dropdown
     $("#nodesFilter").empty().append(nodes);
-
+    //go to show data
     showData(currentData);
 }
 
 //this method loads reports from the server and updates the currentData 
 loadReport = async () => {
     try {
-
+        //set current data null
         currentData = null;
 
         //show loading popup and block the screen
@@ -89,16 +94,20 @@ loadReport = async () => {
 
 //this method fills dropdown filters
 prepareFilters = async (data) => {
+    //turn the data into enumrable collection
     var enumerable = linqer.Enumerable.from(data);
+    //generate options list from the data for hostsFilter
     var hosts = enumerable.aggregate("<option value=0>Select Host</option>", (current, next) => `${current}<option ${next.nodes.length > 0 ? "class='bold'" : ""} value="${next.host.id}">${next.host.name}</option>`);
+    //append the options 
     $("#hostsFilter").empty().append(hosts);
 }
 
 //this function filters the data by selected filter options 
 filterData = async (data) => {
 
-    //selected filter values 
+    //get selected host id 
     var hostId = $("#hostsFilter").val();
+    //get selected node id
     var nodeId = $("#nodesFilter").val();
 
     //filter the data
@@ -123,30 +132,40 @@ showData = async (data) => {
     var hosts = linqer.Enumerable.from(filtered);
 
     //status by hosts
+    //count no host registered
     var noHostsRegistered = hosts.where(item => item.nodes.length == 0).count();
+    //count not implemented hosts
     var notImplemented = hosts.where(item => linqer.Enumerable.from(item.nodes).any(node => node.status_code == 501)).count();
+    //count error reported hosts
     var errorReported = hosts.where(item => linqer.Enumerable.from(item.nodes)
         .any(node => node.status_code == 500 || node.status_code != 500 && node.checks && linqer.Enumerable.from(node.checks).any(check => check.state == "red"))).count();
+    //count hosts with no errors
     var ok = hosts.where(item => linqer.Enumerable.from(item.nodes)
         .any(node => node.checks && linqer.Enumerable.from(node.checks).all(check => check.state == "green"))).count();
 
+    //create the data object for chart generating
     var data = [{ text: "OK", value: ok, color: "green" }
         , { text: "Error Reported", value: errorReported, color: "red" }
         , { text: "No Hosts Registered", value: noHostsRegistered, color: "yellow" }
         , { text: "Host Has Not Implemented Nodes", value: notImplemented, color: "blue" }];
 
+    //if chart1 already exists kill it first
     if (chart1) {
+        //kill!!
         chart1.destroy();
     }
+    //create the chart
     chart1 = await createChart("#mainChart", data);
     //end of status by hosts
 
     //status by nodes
+    //this query groups the hosts by status_code,node counts ,checks reports 
     var nodes = hosts.selectMany(item => item.nodes)
         .groupBy(item => item.status_code == 501 ? "Not Implemented"
             : item.status_code == 500 || item.status_code != 500 && item.checks && linqer.Enumerable.from(item.checks).any(check => check.state == "red") ? "Errors Reported"
                 : item.status_code == 200 && item.checks && linqer.Enumerable.from(item.checks).any(check => check.state == "green") ? "OK"
                     : "Other/Unknown")
+        //create data for generating chart
         .select(group => {
             var item = {
                 text: group.key,
@@ -156,15 +175,22 @@ showData = async (data) => {
             return item;
         }).toArray();
 
+    //if chart2 already exists
     if (chart2) {
+        //destroy the chart2
         chart2.destroy();
     }
+
+    //create the chart 
     chart2 = await createChart("#chart2", nodes);
     //end of status by nodes
 
     //status by checks
+    //group hosts by checks status
     var checks = hosts.selectMany(item => linqer.Enumerable.from(item.nodes).selectMany(node => node.checks ? node.checks : []))
         .groupBy(check => check.state == "green" ? "OK" : "Error");
+
+    //create the data for chart generating
     checks = checks.select(group => {
         var item = {
             text: group.key,
@@ -174,10 +200,13 @@ showData = async (data) => {
         return item;
     }).toArray();
 
+    //if chart 3 already exists
     if (chart3) {
+        //destroy the chart
         chart3.destroy();
     }
 
+    //create the chart
     chart3 = await createChart("#chart3", checks);
     //end of status by checks
 
