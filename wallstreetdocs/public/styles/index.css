@@ -1,0 +1,25 @@
+.top {
+    width: 100%;
+    height: 50px;
+    text-align: center;
+}
+
+.row {
+    width: 100%;
+    height: 48%;
+}
+
+.cell {
+    width: 50%;
+    height: 100%;
+    float: left;
+    text-align: center;
+}
+
+.top-cell {
+    margin-left: 25%;
+}
+
+.bold {
+    font-weight: bolder;
+}

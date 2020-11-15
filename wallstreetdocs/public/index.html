@@ -1,0 +1,38 @@
+<html>
+<head>
+    <script src="scripts/index.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="styles/index.css" type="text/css"  >
+</head>
+<body>
+    <div class="top">
+        <div class="row">
+            <a href="/">Summary</a> | <a href="details.html">Details</a>
+        </div>
+        <div class="row">
+            <button id="reloadData">Reload Data</button>
+            <select id="hostsFilter">
+                <option value=0>Select Host</option>
+            </select>
+            <select id="nodesFilter">
+                <option  value=0>Select Node</option>
+            </select>
+        </div>
+    </div>
+        <div class="row">
+            <div class="cell top-cell">
+                <label>Service Status By Hosts</label>
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+        <div class="row">
+            <div class="cell">
+                <label>Service Status By Nodes</label>
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="cell">
+                <label>Check Results</label>
+                <canvas id="chart3"></canvas>
+            </div>
+        </div>
+</body>
+</html>
